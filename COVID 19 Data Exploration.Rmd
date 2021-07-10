@@ -1,0 +1,113 @@
+---
+title: "COVID 19 Data Exploration"
+author: "Voltaire Jay Recto"
+date: "7/10/2021"
+output: html_document
+---
+
+## COVID 19 Data Exploration
+
+Exploring COVID 19 data using R Studio Cloud.
+
+Data source: https://ourworldindata.org/covid-deaths
+
+Installing tidyverse
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+```
+
+Importing data to R
+
+```{r}
+covid_data <- read.csv("owid-covid-data.csv")
+```
+
+Previewing data
+
+```{r}
+glimpse(covid_data)
+```
+
+```{r}
+colnames(covid_data)
+```
+
+Creating new dataframe with selected columns
+
+```{r}
+covid_cases <- select(covid_data, location, date, total_cases, new_cases, total_deaths, population)
+```
+
+Reviewing new dataframe
+
+```{r}
+glimpse(covid_cases)
+```
+
+Adding new column for infection rate
+
+```{r}
+covid_cases <- mutate(covid_cases, infected_percent = total_cases/population*100)
+```
+
+Adding another column, this time for death rate
+
+```{r}
+covid_cases <- mutate(covid_cases, death_percent = total_deaths/total_cases*100)
+```
+
+Reviewing updated data
+
+```{r}
+glimpse(covid_cases)
+```
+
+Created new dataframe to filter only data from July 1
+
+```{r}
+covid_cases_701 <- filter(covid_cases, date=="2021-07-01")
+```
+
+In order to plot only the highest % countries, we are creating new dataframes for plotting.
+
+```{r}
+covid_cases_inf <- filter(covid_cases_701, infected_percent>=10)
+```
+
+```{r}
+covid_cases_death <- filter(covid_cases_701, death_percent>=5)
+```
+
+Installing ggplot2 in order to plot graphs
+
+```{r}
+install.packages('ggplot2')
+library(ggplot2)
+```
+
+Creating plot for infection rate
+
+```{r}
+ggplot(data = covid_cases_inf) +
+  geom_col(mapping = aes(x = location, y = infected_percent)) +
+  labs(title="Countries with Highest Infection",
+     caption=paste0("As of July 1, 2021"),
+     x="Location",
+     y="Infection Percentage") +
+  theme(axis.text.x=element_text(angle = 90, hjust = 0))
+```
+
+Creating plot for death rate
+
+```{r}
+ggplot(data = covid_cases_death) +
+  geom_col(mapping = aes(x = location, y = death_percent)) +
+  labs(title="Countries with Highest Death Rate",
+       caption=paste0("As of July 1, 2021"),
+       x="Location",
+       y="Death Percentage") +
+  theme(axis.text.x=element_text(angle = 90, hjust = 0))
+```
+
